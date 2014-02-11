@@ -26,6 +26,11 @@
 		CF17D668189C57E800B59E11 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF17D667189C57E800B59E11 /* FacebookSDK.framework */; };
 		CF17D66E189C5AB300B59E11 /* iphone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CF17D66D189C5AB300B59E11 /* iphone.storyboard */; };
 		CF17D67D189C675600B59E11 /* JMFViewControllerChooseFriends.m in Sources */ = {isa = PBXBuildFile; fileRef = CF17D67C189C675600B59E11 /* JMFViewControllerChooseFriends.m */; };
+		CF4CA56F18A544A70091C7BD /* NSDictionary+googleAnalysis.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4CA56E18A544A70091C7BD /* NSDictionary+googleAnalysis.m */; };
+		CF4CA57218A5463E0091C7BD /* ImageWithText.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4CA57118A5463E0091C7BD /* ImageWithText.m */; };
+		CFEFA10118AAB7B700B03225 /* Friends.m in Sources */ = {isa = PBXBuildFile; fileRef = CFEFA10018AAB7B700B03225 /* Friends.m */; };
+		CFEFA10418AAB8A600B03225 /* JMFFriends.m in Sources */ = {isa = PBXBuildFile; fileRef = CFEFA10318AAB8A600B03225 /* JMFFriends.m */; };
+		CFEFA10718AAC6DF00B03225 /* SelectAFriendTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +68,16 @@
 		CF17D66D189C5AB300B59E11 /* iphone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = iphone.storyboard; sourceTree = "<group>"; };
 		CF17D67B189C675600B59E11 /* JMFViewControllerChooseFriends.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JMFViewControllerChooseFriends.h; sourceTree = "<group>"; };
 		CF17D67C189C675600B59E11 /* JMFViewControllerChooseFriends.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JMFViewControllerChooseFriends.m; sourceTree = "<group>"; };
+		CF4CA56D18A544A70091C7BD /* NSDictionary+googleAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+googleAnalysis.h"; sourceTree = "<group>"; };
+		CF4CA56E18A544A70091C7BD /* NSDictionary+googleAnalysis.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+googleAnalysis.m"; sourceTree = "<group>"; };
+		CF4CA57018A5463E0091C7BD /* ImageWithText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageWithText.h; sourceTree = "<group>"; };
+		CF4CA57118A5463E0091C7BD /* ImageWithText.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageWithText.m; sourceTree = "<group>"; };
+		CFEFA0FF18AAB7B700B03225 /* Friends.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Friends.h; sourceTree = "<group>"; };
+		CFEFA10018AAB7B700B03225 /* Friends.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Friends.m; sourceTree = "<group>"; };
+		CFEFA10218AAB8A600B03225 /* JMFFriends.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JMFFriends.h; sourceTree = "<group>"; };
+		CFEFA10318AAB8A600B03225 /* JMFFriends.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JMFFriends.m; sourceTree = "<group>"; };
+		CFEFA10518AAC6DF00B03225 /* SelectAFriendTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectAFriendTableViewController.h; sourceTree = "<group>"; };
+		CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectAFriendTableViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,9 +149,19 @@
 				CF17D664189C57A100B59E11 /* JMFThirdViewController.h */,
 				CF17D665189C57A100B59E11 /* JMFThirdViewController.m */,
 				CF17D63D189C576200B59E11 /* test1.xcdatamodeld */,
+				CFEFA0FF18AAB7B700B03225 /* Friends.h */,
+				CFEFA10018AAB7B700B03225 /* Friends.m */,
+				CF4CA57018A5463E0091C7BD /* ImageWithText.h */,
+				CF4CA57118A5463E0091C7BD /* ImageWithText.m */,
 				CF17D632189C576200B59E11 /* Supporting Files */,
 				CF17D67B189C675600B59E11 /* JMFViewControllerChooseFriends.h */,
 				CF17D67C189C675600B59E11 /* JMFViewControllerChooseFriends.m */,
+				CF4CA56D18A544A70091C7BD /* NSDictionary+googleAnalysis.h */,
+				CF4CA56E18A544A70091C7BD /* NSDictionary+googleAnalysis.m */,
+				CFEFA10218AAB8A600B03225 /* JMFFriends.h */,
+				CFEFA10318AAB8A600B03225 /* JMFFriends.m */,
+				CFEFA10518AAC6DF00B03225 /* SelectAFriendTableViewController.h */,
+				CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */,
 			);
 			path = test1;
 			sourceTree = "<group>";
@@ -269,10 +294,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF17D63C189C576200B59E11 /* JMFAppDelegate.m in Sources */,
+				CF4CA56F18A544A70091C7BD /* NSDictionary+googleAnalysis.m in Sources */,
 				CF17D638189C576200B59E11 /* main.m in Sources */,
+				CFEFA10718AAC6DF00B03225 /* SelectAFriendTableViewController.m in Sources */,
 				CF17D67D189C675600B59E11 /* JMFViewControllerChooseFriends.m in Sources */,
+				CFEFA10418AAB8A600B03225 /* JMFFriends.m in Sources */,
 				CF17D666189C57A100B59E11 /* JMFThirdViewController.m in Sources */,
 				CF17D63F189C576200B59E11 /* test1.xcdatamodeld in Sources */,
+				CF4CA57218A5463E0091C7BD /* ImageWithText.m in Sources */,
+				CFEFA10118AAB7B700B03225 /* Friends.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +511,7 @@
 				CF17D65A189C576300B59E11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CF17D65B189C576300B59E11 /* Build configuration list for PBXNativeTarget "test1Tests" */ = {
 			isa = XCConfigurationList;
@@ -489,6 +520,7 @@
 				CF17D65D189C576300B59E11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

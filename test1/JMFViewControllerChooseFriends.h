@@ -12,5 +12,7 @@
 @interface JMFViewControllerChooseFriends : UIViewController
 @property (strong, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) IBOutlet UITextField *pictureTitle;
+@property (strong, nonatomic) IBOutlet UITextField *latitude;
+@property (strong, nonatomic) IBOutlet UITextField *longitude;
 - (IBAction)buttonTouched:(UIButton *)sender;
 @end

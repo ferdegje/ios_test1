@@ -9,8 +9,11 @@
 #import "JMFAppDelegate.h"
 #import "JMFViewControllerChooseFriends.h"
 #import "FacebookSDK/FBLoginView.h"
-@interface JMFViewControllerChooseFriends ()
+#import "NSDictionary+googleAnalysis.h"
+#import "ImageWithText.h"
 
+@interface JMFViewControllerChooseFriends ()
+@property (strong, nonatomic) NSManagedObject *imageWithText;
 @end
 
 @implementation JMFViewControllerChooseFriends
@@ -28,6 +31,13 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    NSManagedObjectContext *context =
+    [appDelegate managedObjectContext];
+    
+    self.imageWithText = [NSEntityDescription insertNewObjectForEntityForName:@"ImageWithText" inManagedObjectContext:context];
+    [self.imageWithText addObserver:self forKeyPath:@"latitude" options:NSKeyValueObservingOptionNew context:NULL];
+    [self.imageWithText addObserver:self forKeyPath:@"longitude" options:NSKeyValueObservingOptionNew context:NULL];
     FBLoginView *loginView = [[FBLoginView alloc] init];
     // Align the button in the center horizontally
     loginView.frame = CGRectOffset(loginView.frame, (self.view.center.x - (loginView.frame.size.width / 2)), 5);
@@ -66,17 +76,56 @@
 - (IBAction)saveImage:(UIButton *)sender {
     NSLog(@"Saving the image and its details");
     NSString *title = self.pictureTitle.text;
-    UIImage *image = self.imageView.image;
+    NSData *image = UIImagePNGRepresentation(self.imageView.image);
     
-    JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    NSManagedObjectContext *context =
-    [appDelegate managedObjectContext];
-    NSManagedObject *newImageWithText;
-    newImageWithText = [NSEntityDescription insertNewObjectForEntityForName:@"ImageWithText" inManagedObjectContext:context];
-    [newImageWithText setValue:title forKey:@"title"];
-    [newImageWithText setValue:image forKey:@"image"];
+    
+    [self.imageWithText setValue:title forKey:@"title"];
+    [self.imageWithText setValue:image forKey:@"image"];
     NSError *error;
-    [context save:&error];
+    if ([self.imageWithText.managedObjectContext save:&error]) {
+        [self fetchLatLng];
+        
+    }
+}
+
+- (void)fetchLatLng
+{
+    NSManagedObjectID *mid = [self.imageWithText objectID];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Now I am on a different thread
+        JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+        NSManagedObjectContext *context = [[NSManagedObjectContext alloc] init];
+        context.persistentStoreCoordinator = [appDelegate persistentStoreCoordinator];
+        ImageWithText *image = (ImageWithText *)[context objectWithID:mid];
+        
+        NSString *url = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/geocode/json?address=%@&sensor=true", image.title];
+        NSURL *googleUrl = [NSURL URLWithString:url];
+        NSURLRequest *request = [NSURLRequest requestWithURL:googleUrl];
+        NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+        NSDictionary *jsonData = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        
+        
+        
+        image.latitude = [jsonData latitude];
+        image.longitude = [jsonData longitude];
+        
+        [context save:nil];
+    });
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqual:@"latitude"]) {
+            self.latitude.text=[[self.imageWithText valueForKey:@"latitude"] stringValue];
+    }
+    if ([keyPath isEqual:@"longitude"]) {
+        self.longitude.text=[[self.imageWithText valueForKey:@"longitude"] stringValue];
+    }
+}
+
+- (void) dealloc {
+    [self.imageWithText removeObserver:self forKeyPath:@"latitude"];
+    [self.imageWithText removeObserver:self forKeyPath:@"longitude"];
 }
 
 - (IBAction)buttonTouched:(UIButton *)sender
