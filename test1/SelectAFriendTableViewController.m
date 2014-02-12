@@ -9,6 +9,7 @@
 #import "SelectAFriendTableViewController.h"
 #import "JMFFriends.h"
 #import "Friends.h"
+#import <AddressBookUI/AddressBookUI.h>
 
 @interface SelectAFriendTableViewController ()
 
@@ -41,13 +42,13 @@
     JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     NSManagedObjectContext *context = [appDelegate managedObjectContext];
     NSError *error;
-    //    Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
-//    aFriend.name = @"Lisa Cachou";
-//    aFriend.category = @"Facebook";
+    Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
+    aFriend.name = @"Lisa Cachou";
+    aFriend.category = @"Facebook";
 
-//    if ([aFriend.managedObjectContext save:&error]) {
-//        NSLog(@"No error when saving the object");
-//    }
+    if ([aFriend.managedObjectContext save:&error]) {
+        NSLog(@"No error when saving the object");
+    }
     NSEntityDescription *entityDescription = [NSEntityDescription
                                               entityForName:@"Friends" inManagedObjectContext:context];
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
@@ -132,5 +133,77 @@
      [[self.searchDisplayController.searchBar scopeButtonTitles] objectAtIndex:searchOption]];
     // Return YES to cause the search result table view to be reloaded.
     return YES;
+}
+
+#pragma mark - Click on an entry
+- (void)retrieveContactsFromAddressBookIntoCoreData:(ABAddressBookRef)addressBook
+{
+    CFArrayRef peopleCoreFoundation = ABAddressBookCopyArrayOfAllPeople(addressBook);
+    CFIndex countOfPeople = ABAddressBookGetPersonCount(addressBook);
+    NSArray *people = (__bridge NSArray*)peopleCoreFoundation;
+    CFRelease(peopleCoreFoundation);
+    JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    NSManagedObjectContext *context = [appDelegate managedObjectContext];
+    NSError *error;
+    for (int i = 0; i < countOfPeople; i++) {
+        ABRecordRef aPerson = (__bridge ABRecordRef)([people objectAtIndex:i]);
+        Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
+        aFriend.name = CFBridgingRelease(ABRecordCopyCompositeName(aPerson));
+        aFriend.category = @"AddressBook";
+//        aFriend.iosABrecordId = ABRecordGetRecordID(aPerson);
+        if ([aFriend.managedObjectContext save:&error]) {
+            NSLog(@"No error when saving the object");
+        }
+
+//        NSString *name =
+//        ABMultiValueRef phoneNumbers = ABRecordCopyValue(aPerson, kABPersonPhoneProperty);
+////        NSString *firstPhone = (__bridge_transfer NSString*)ABMultiValueCopyValueAtIndex(phoneNumbers, 0);
+//        ABRecordID *recordId = ABRecordGetRecordID(aPerson);
+
+    }
+
+    CFRelease(countOfPeople);
+    NSLog(@"people");
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    //Value Selected by user
+    NSArray *tableSource;
+    if (tableView == self.searchDisplayController.searchResultsTableView) {
+        tableSource=filteredFriendsArray;
+    } else {
+        tableSource=friendsArray;
+    }
+    Friends *selectedValue = [tableSource objectAtIndex:indexPath.row];
+    NSLog(@"Value selected %@", selectedValue.name);
+    // Request authorization to Address Book
+    ABAddressBookRef addressBookRef = ABAddressBookCreateWithOptions(NULL, NULL);
+    if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusNotDetermined) {
+        ABAddressBookRequestAccessWithCompletion(addressBookRef, ^(bool granted, CFErrorRef error) {
+            if (granted) {
+                // First time access has been granted, add the contact
+                NSLog(@"You now have access to the adress book");
+                [self retrieveContactsFromAddressBookIntoCoreData:addressBookRef];
+                
+                
+            } else {
+                // User denied access
+                // Display an alert telling user the contact could not be added
+            }
+        });
+    }
+    else if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized) {
+        // The user has previously given access, add the contact
+        [self retrieveContactsFromAddressBookIntoCoreData:addressBookRef];
+    }
+    else {
+        // The user has previously denied access
+        // Send an alert telling user to change privacy setting in settings app
+    }
+    //Pass selected value to a property declared in NewViewController
+//    viewController.valueToPrint = selectedValue;
+    //Push new view to navigationController stack
+//    [self.navigationController pushViewController:viewController animated:YES];
 }
 @end

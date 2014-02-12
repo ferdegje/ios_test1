@@ -3,9 +3,9 @@
     <entity name="Friends" representedClassName="Friends" syncable="YES">
         <attribute name="category" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="facebookId" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="facebookUser" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="facebookUser" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="iosABrecordId" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="phoneNumber" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="ImageWithText" representedClassName="ImageWithText" syncable="YES">
         <attribute name="image" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
@@ -14,7 +14,7 @@
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ImageWithText" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Friends" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ImageWithText" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>
