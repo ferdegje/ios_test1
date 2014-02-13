@@ -40,22 +40,19 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
-//    self.window.backgroundColor = [UIColor purpleColor];
-//    [self.window makeKeyAndVisible];
     // Whenever a person opens the app, check for a cached session
-//    if (FBSession.activeSession.state == FBSessionStateCreatedTokenLoaded) {
-//        
-//        // If there's one, just open the session silently, without showing the user the login UI
-//        [FBSession openActiveSessionWithReadPermissions:@[@"basic_info"]
-//                                           allowLoginUI:NO
-//                                      completionHandler:^(FBSession *session, FBSessionState state, NSError *error) {
-//                                          // Handler for session state changes
-//                                          // This method will be called EACH time the session state changes,
-//                                          // also for intermediate states and NOT just when the session open
-//                                          [self sessionStateChanged:session state:state error:error];
-//                                      }];
+    if (FBSession.activeSession.state == FBSessionStateCreatedTokenLoaded) {
+        
+        // If there's one, just open the session silently, without showing the user the login UI
+        [FBSession openActiveSessionWithReadPermissions:@[@"basic_info"]
+                                           allowLoginUI:NO
+                                      completionHandler:^(FBSession *session, FBSessionState state, NSError *error) {
+                                          // Handler for session state changes
+                                          // This method will be called EACH time the session state changes,
+                                          // also for intermediate states and NOT just when the session open
+                                          [self sessionStateChanged:session state:state error:error];
+                                      }];
+    }
     return YES;
 }
 
@@ -194,6 +191,7 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
 
 #pragma mark - Facebook Handling
 // This method will handle ALL the session state changes in the app
+// This method will handle ALL the session state changes in the app
 - (void)sessionStateChanged:(FBSession *)session state:(FBSessionState) state error:(NSError *)error
 {
     // If the session was opened successfully
@@ -289,6 +287,10 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
 
 // During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
 // After authentication, your app will be called back with the session information.
+// During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
+// After authentication, your app will be called back with the session information.
+// During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
+// After authentication, your app will be called back with the session information.
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication
@@ -298,8 +300,10 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
     [FBSession.activeSession setStateChangeHandler:
      ^(FBSession *session, FBSessionState state, NSError *error) {
          
+         // Retrieve the app delegate
+         JMFAppDelegate* appDelegate = [UIApplication sharedApplication].delegate;
          // Call the app delegate's sessionStateChanged:state:error method to handle session state changes
-         [self sessionStateChanged:session state:state error:error];
+         [appDelegate sessionStateChanged:session state:state error:error];
      }];
     return [FBAppCall handleOpenURL:url sourceApplication:sourceApplication];
 }

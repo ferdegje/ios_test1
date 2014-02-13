@@ -7,9 +7,10 @@
 //
 
 #import "SelectAFriendTableViewController.h"
-#import "JMFFriends.h"
+#import "Friends.h"
 #import "JMFFakeContact.h"
 #import <AddressBookUI/AddressBookUI.h>
+#import "FacebookSDK/FBLoginView.h"
 
 @interface SelectAFriendTableViewController ()
 
@@ -40,48 +41,8 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    // Sample Data for candyArray
-    JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
-    NSManagedObjectContext *context = [appDelegate managedObjectContext];
-    NSError *error;
-    NSEntityDescription *entityDescription = [NSEntityDescription
-                                              entityForName:@"Friends" inManagedObjectContext:context];
-    
-    // Are there any contacts with a category of AddressBook. If so, that means the app has already had the right permissions to get the contacts
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"category == 'AddressBook'"];
-    NSFetchRequest *requestObjectsFromAddressBook = [[NSFetchRequest alloc] init];
-    [requestObjectsFromAddressBook setPredicate:predicate];
-    [requestObjectsFromAddressBook setEntity:entityDescription];
-    NSArray *arrayObjectsFromAddressBook = [context executeFetchRequest:requestObjectsFromAddressBook error:&error];
-    NSUInteger *countOfObjectsFromAddressBook = [arrayObjectsFromAddressBook count];
-    if (countOfObjectsFromAddressBook>0) {
-        self.addressBookAlreadyLoaded = YES;
-    } else {
-        self.addressBookAlreadyLoaded = NO;
-    }
-    
-    
-    
-//    Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
-//    aFriend.name = @"Lisa Cachou";
-//    aFriend.category = @"Facebook";
 
-//    if ([aFriend.managedObjectContext save:&error]) {
-//        NSLog(@"No error when saving the object");
-//    }
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:entityDescription];
-    NSArray *array = [context executeFetchRequest:request error:&error];
-//    friendsArray = [NSArray arrayWithObject:[JMFFriends friendOfCategory:@"Contacts" name:@"Add a friends from your contacts"]];
-//    friendsArray = array;
-    friendsArray = [[NSMutableArray alloc] init];
-    if (self.addressBookAlreadyLoaded == NO) {
-        JMFFakeContact *aFakeContact = [JMFFakeContact setCategoryAndName:@"AddressBook" name:messageToConnectAddressBook];
-        [friendsArray addObject:aFakeContact];
-    }
-    [friendsArray addObjectsFromArray:array];
-    self.filteredFriendsArray = [NSMutableArray arrayWithCapacity:[friendsArray count]];
+    [self updateDataSource];
     
     // Reload the table
     [self.tableView reloadData];
@@ -113,14 +74,14 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     // Create a new Candy Object
-    JMFFriends *aFriend = nil;
+    Friends *aFriend = nil;
     // Check to see whether the normal table or search results table is being displayed and set the Candy object from the appropriate array
     if (tableView == self.searchDisplayController.searchResultsTableView) {
         aFriend = [filteredFriendsArray objectAtIndex:indexPath.row];
     } else {
         aFriend = [friendsArray objectAtIndex:indexPath.row];
     }
-    aFriend = [friendsArray objectAtIndex:indexPath.row];
+//    aFriend = [friendsArray objectAtIndex:indexPath.row];
     // Configure the cell
     cell.textLabel.text = aFriend.name;
     [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
@@ -133,15 +94,25 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
     // Remove all objects from the filtered search array
     [self.filteredFriendsArray removeAllObjects];
     // Filter the array using NSPredicate
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.name contains[c] %@",searchText];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name contains[c] %@",searchText];
     NSArray *tempArray = [friendsArray filteredArrayUsingPredicate:predicate];
     if (![scope isEqualToString:@"All"]) {
         // Further filter the array with the scope
-        NSPredicate *scopePredicate = [NSPredicate predicateWithFormat:@"SELF.category contains[c] %@",scope];
+        NSPredicate *scopePredicate;
+        if ([scope isEqualToString:@"Phone"]) {
+            scopePredicate = [NSPredicate predicateWithFormat:@"category contains[c] %@",@"AddressBook"];
+        } else if ([scope isEqualToString:@"Facebook"]) {
+            scopePredicate = [NSPredicate predicateWithFormat:@"category contains[c] %@",@"Facebook"];
+        } else {
+            NSLog(@"Filter scope %@ is unsupported", scope);
+        }
+        
         tempArray = [tempArray filteredArrayUsingPredicate:scopePredicate];
     }
+    NSString* myNewString = [NSString stringWithFormat:@"%i", [tempArray count]];
+    NSLog(@"%@", myNewString);
     filteredFriendsArray = [NSMutableArray arrayWithArray:tempArray];
-    NSLog(@"results filtered");
+    NSLog(@"results filtered %@", searchText);
 }
 
 #pragma mark - UISearchDisplayController Delegate Methods
@@ -161,40 +132,123 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
     return YES;
 }
 
-#pragma mark - Click on an entry
-- (void)retrieveContactsFromAddressBookIntoCoreData:(ABAddressBookRef)addressBook
+#pragma mark - Utilities
+- (void)updateDataSource
 {
-    CFArrayRef peopleCoreFoundation = ABAddressBookCopyArrayOfAllPeople(addressBook);
-    CFIndex countOfPeople = ABAddressBookGetPersonCount(addressBook);
-    NSArray *people = (__bridge NSArray*)peopleCoreFoundation;
-    CFRelease(peopleCoreFoundation);
     JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
     NSManagedObjectContext *context = [appDelegate managedObjectContext];
     NSError *error;
-    for (int i = 0; i < countOfPeople; i++) {
-        ABRecordRef aPerson = (__bridge ABRecordRef)([people objectAtIndex:i]);
-        Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
-        aFriend.name = CFBridgingRelease(ABRecordCopyCompositeName(aPerson));
-        aFriend.category = @"AddressBook";
-        NSNumber *recordId = [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)];
-        aFriend.iosABrecordId = recordId;
-        if ([aFriend.managedObjectContext save:&error]) {
-            NSLog(@"No error when saving the object");
-        }
-
-//        NSString *name =
-//        ABMultiValueRef phoneNumbers = ABRecordCopyValue(aPerson, kABPersonPhoneProperty);
-////        NSString *firstPhone = (__bridge_transfer NSString*)ABMultiValueCopyValueAtIndex(phoneNumbers, 0);
-//        ABRecordID *recordId = ABRecordGetRecordID(aPerson);
-
+    NSEntityDescription *entityDescription = [NSEntityDescription
+                                              entityForName:@"Friends" inManagedObjectContext:context];
+    
+    // Are there any contacts with a category of AddressBook. If so, that means the app has already had the right permissions to get the contacts
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"category == 'AddressBook'"];
+    NSFetchRequest *requestObjectsFromAddressBook = [[NSFetchRequest alloc] init];
+    [requestObjectsFromAddressBook setPredicate:predicate];
+    [requestObjectsFromAddressBook setEntity:entityDescription];
+    NSArray *arrayObjectsFromAddressBook = [context executeFetchRequest:requestObjectsFromAddressBook error:&error];
+    NSUInteger *countOfObjectsFromAddressBook = [arrayObjectsFromAddressBook count];
+    if (countOfObjectsFromAddressBook>0) {
+        self.addressBookAlreadyLoaded = YES;
+        [self retrieveContactsFromAddressBookIntoCoreData];
+    } else {
+        self.addressBookAlreadyLoaded = NO;
     }
     
-
-//    CFRelease(countOfPeople);
-    // Reload the table
-   [self.tableView reloadData];
+    
+    
+    //    Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
+    //    aFriend.name = @"Lisa Cachou";
+    //    aFriend.category = @"Facebook";
+    
+    //    if ([aFriend.managedObjectContext save:&error]) {
+    //        NSLog(@"No error when saving the object");
+    //    }
+    
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    [request setEntity:entityDescription];
+    NSArray *array = [context executeFetchRequest:request error:&error];
+    //    friendsArray = [NSArray arrayWithObject:[JMFFriends friendOfCategory:@"Contacts" name:@"Add a friends from your contacts"]];
+    //    friendsArray = array;
+    friendsArray = [[NSMutableArray alloc] init];
+    if (self.addressBookAlreadyLoaded == NO) {
+        JMFFakeContact *aFakeContact = [JMFFakeContact setCategoryAndName:@"AddressBook" name:messageToConnectAddressBook];
+        [friendsArray addObject:aFakeContact];
+    }
+    [friendsArray addObjectsFromArray:array];
+    self.filteredFriendsArray = [NSMutableArray arrayWithCapacity:[friendsArray count]];
 }
 
+- (void)retrieveContactsFromFacebbokIntoCoreData
+{
+    // If the session state is any of the two "open" states when the button is clicked
+    if (FBSession.activeSession.state == FBSessionStateOpen
+        || FBSession.activeSession.state == FBSessionStateOpenTokenExtended) {
+        
+        // Close the session and remove the access token from the cache
+        // The session state handler (in the app delegate) will be called automatically
+        [FBSession.activeSession closeAndClearTokenInformation];
+        
+        // If the session state is not any of the two "open" states when the button is clicked
+    } else {
+        // Open a session showing the user the login UI
+        // You must ALWAYS ask for basic_info permissions when opening a session
+        [FBSession openActiveSessionWithReadPermissions:@[@"basic_info"]
+                                           allowLoginUI:YES
+                                      completionHandler:
+         ^(FBSession *session, FBSessionState state, NSError *error) {
+             
+             // Retrieve the app delegate
+             JMFAppDelegate* appDelegate = [UIApplication sharedApplication].delegate;
+             // Call the app delegate's sessionStateChanged:state:error method to handle session state changes
+             [appDelegate sessionStateChanged:session state:state error:error];
+         }];
+    }
+}
+
+- (void)retrieveContactsFromAddressBookIntoCoreData
+{
+    NSLog(@"Retrieving objects from the user address book");
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+    CFArrayRef peopleRef = ABAddressBookCopyArrayOfAllPeople(addressBook);
+    NSArray *people = CFBridgingRelease(peopleRef); // No need to CFRelease peopleRef... CFBridgingRelease() transfers it to ARC
+    
+    JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    NSManagedObjectContext *context = [appDelegate managedObjectContext];
+    NSError *error = nil; // Always good practice to initialise everything
+    
+    NSEntityDescription *entityDescription = [NSEntityDescription
+                                              entityForName:@"Friends" inManagedObjectContext:context];
+    
+    
+    for (int i = 0; i < people.count; i++) {
+        // You've used (__bridge ABRecordRef) correctly here... you don't want to
+        // change the retain/release count. Well done.
+        ABRecordRef aPerson = (__bridge ABRecordRef)([people objectAtIndex:i]);
+        
+        // Is there an object already existing with this id
+        NSFetchRequest *request = [[NSFetchRequest alloc] init]; //request that will be used to ensure there is not already an object with this id
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"iosABrecordId == %@", [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)]];
+        [request setEntity:entityDescription];
+        [request setPredicate:predicate];
+        NSArray *objectsWithThisId = [context executeFetchRequest:request error:&error];
+        
+        // if no object already exists
+        if ([objectsWithThisId count] == 0) {
+            Friends *aFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
+            aFriend.name = CFBridgingRelease(ABRecordCopyCompositeName(aPerson)); // Also correct. Good.
+            aFriend.category = @"AddressBook";
+            aFriend.iosABrecordId = [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)];
+            
+            if (![aFriend.managedObjectContext save:&error]) {
+                NSLog(@"Error when saving the object: %@", error);
+            }
+        }
+        
+    }
+}
+
+#pragma mark - Click on an entry
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     //Value Selected by user
@@ -213,8 +267,9 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
                 if (granted) {
                     // First time access has been granted, add the contact
                     NSLog(@"You now have access to the adress book");
-                    [self retrieveContactsFromAddressBookIntoCoreData:addressBookRef];
-                    
+                    [self retrieveContactsFromAddressBookIntoCoreData];
+                    [self updateDataSource];
+                    [self.tableView reloadData];
                     
                 } else {
                     // User denied access
@@ -224,15 +279,19 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
         }
         else if (ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized) {
             // The user has previously given access, add the contact
-            [self retrieveContactsFromAddressBookIntoCoreData:addressBookRef];
+            [self retrieveContactsFromAddressBookIntoCoreData];
+            [self updateDataSource];
+            [self.tableView reloadData];
         }
         else {
             // The user has previously denied access
             // Send an alert telling user to change privacy setting in settings app
         }
+    } else {
+        NSLog(@"UUID %@", selectedValue.iosABrecordId);
+        NSLog(@"Value selected %@", selectedValue.name);
     }
-    NSLog(@"UUID %@", selectedValue.iosABrecordId);
-    NSLog(@"Value selected %@", selectedValue.name);
+
         //Pass selected value to a property declared in NewViewController
 //    viewController.valueToPrint = selectedValue;
     //Push new view to navigationController stack
