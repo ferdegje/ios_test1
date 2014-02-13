@@ -33,6 +33,7 @@
 		CFFB4C4918AC06E80030D693 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFFB4C4718AC06E80030D693 /* AddressBook.framework */; };
 		CFFB4C4A18AC06E80030D693 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFFB4C4818AC06E80030D693 /* AddressBookUI.framework */; };
 		CFFB4C5018AC18B30030D693 /* Friends.m in Sources */ = {isa = PBXBuildFile; fileRef = CFFB4C4F18AC18B30030D693 /* Friends.m */; };
+		CFFB4C5318AC3E610030D693 /* JMFFakeContact.m in Sources */ = {isa = PBXBuildFile; fileRef = CFFB4C5218AC3E610030D693 /* JMFFakeContact.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,8 @@
 		CFFB4C4818AC06E80030D693 /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
 		CFFB4C4E18AC18B30030D693 /* Friends.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Friends.h; sourceTree = "<group>"; };
 		CFFB4C4F18AC18B30030D693 /* Friends.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Friends.m; sourceTree = "<group>"; };
+		CFFB4C5118AC3E610030D693 /* JMFFakeContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JMFFakeContact.h; sourceTree = "<group>"; };
+		CFFB4C5218AC3E610030D693 /* JMFFakeContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JMFFakeContact.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +173,8 @@
 				CFEFA10318AAB8A600B03225 /* JMFFriends.m */,
 				CFEFA10518AAC6DF00B03225 /* SelectAFriendTableViewController.h */,
 				CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */,
+				CFFB4C5118AC3E610030D693 /* JMFFakeContact.h */,
+				CFFB4C5218AC3E610030D693 /* JMFFakeContact.m */,
 			);
 			path = test1;
 			sourceTree = "<group>";
@@ -310,6 +315,7 @@
 				CFEFA10418AAB8A600B03225 /* JMFFriends.m in Sources */,
 				CF17D666189C57A100B59E11 /* JMFThirdViewController.m in Sources */,
 				CF17D63F189C576200B59E11 /* test1.xcdatamodeld in Sources */,
+				CFFB4C5318AC3E610030D693 /* JMFFakeContact.m in Sources */,
 				CF4CA57218A5463E0091C7BD /* ImageWithText.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -10,7 +10,8 @@
 #import "JMFAppDelegate.h"
 
 @interface SelectAFriendTableViewController : UITableViewController <UISearchBarDelegate, UISearchDisplayDelegate>
-@property (nonatomic, strong) NSArray *friendsArray;
+@property (nonatomic, strong) NSMutableArray *friendsArray;
 @property (strong,nonatomic) NSMutableArray *filteredFriendsArray;
 @property IBOutlet UISearchBar *friendsSearchBar;
+@property (nonatomic) BOOL *addressBookAlreadyLoaded;
 @end
