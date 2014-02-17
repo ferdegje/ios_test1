@@ -2,7 +2,7 @@
 //  Friends.h
 //  test1
 //
-//  Created by Jean-Marie Ferdegue on 12/02/2014.
+//  Created by Jean-Marie Ferdegue on 16/02/2014.
 //  Copyright (c) 2014 Jean-Marie Ferdegue. All rights reserved.
 //
 
@@ -17,5 +17,6 @@
 @property (nonatomic, retain) NSString * facebookUser;
 @property (nonatomic, retain) NSNumber * iosABrecordId;
 @property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSData * image;
 
 @end

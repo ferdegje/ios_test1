@@ -9,6 +9,7 @@
 #import "JMFAppDelegate.h"
 #import "FacebookSDK/FBSession.h"
 #import "FacebookSDK/FBAppCall.h"
+#import "Friends.h"
 
 // Ensure that any observations about NSManagedObjectContexts being saved
 // are merged with the main thread's context ON THE MAIN THREAD. The
@@ -271,10 +272,79 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
     
     // Welcome message
     [self setFacebookLoggedIn:YES];
-    [self showMessage:@"You're now logged in" withTitle:@"Welcome!"];
-    
+//    [self showMessage:@"You're now logged in" withTitle:@"Welcome!"];
+    [self retrieveFacebookFriendsFromOffset:0];
 }
 
+- (void) retrieveFacebookFriendsFromOffset:(int)offset
+{
+    // pagination largely inspired by http://stackoverflow.com/questions/14006244/objective-c-facebook-graph-api-pagination
+    int limit = 100; // we will retrieve friends of the user by batches of limit
+    NSDictionary *params;
+    NSManagedObjectContext *context = [self managedObjectContext];
+    NSError *error;
+    NSEntityDescription *entityDescription = [NSEntityDescription
+                                              entityForName:@"Friends" inManagedObjectContext:context];
+    
+    
+    params = [NSDictionary dictionaryWithObjectsAndKeys:
+              [NSString stringWithFormat:@"%d", offset], @"offset",
+              [NSString stringWithFormat:@"%d", limit], @"limit",
+              nil];
+    [FBRequestConnection startWithGraphPath:@"me/friends?fields=id,name,username"
+                                 parameters:params HTTPMethod:@"GET"
+                          completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+                              if (!error) {
+                                  // Sucess! Include your code to handle the results here
+                                  
+                                  NSArray *rdata = [result objectForKey:@"data"];
+                                  NSLog(@"user events: %@", rdata);
+                                  if ([rdata count] >= limit) {
+                                      int newOffset;
+                                      newOffset = offset +limit;
+                                      [self retrieveFacebookFriendsFromOffset:newOffset];
+                                  }
+                                  for (NSDictionary *aFbFriend in rdata) {
+                                      // Make sure that this user isn't already in the Friends coredata table
+                                      NSPredicate *predicate = [NSPredicate predicateWithFormat:@"facebookUser == %@", [aFbFriend objectForKey:@"username"]];
+                                      NSFetchRequest *requestOfUsersWithThisFbUsername = [[NSFetchRequest alloc] init];
+                                      [requestOfUsersWithThisFbUsername setPredicate:predicate];
+                                      [requestOfUsersWithThisFbUsername setEntity:entityDescription];
+                                      NSArray *arrayObjectsAlreadyStored = [context executeFetchRequest:requestOfUsersWithThisFbUsername error:&error];
+                                      Friends *newFriend;
+                                      if ([arrayObjectsAlreadyStored count] == 0) { // If the user didn't already exist in coredata table friends, then we create a new one
+                                          newFriend = [NSEntityDescription insertNewObjectForEntityForName:@"Friends" inManagedObjectContext:context];
+                                          newFriend.facebookUser = [aFbFriend objectForKey:@"username"];
+                                          newFriend.name = [aFbFriend objectForKey:@"name"];
+                                          newFriend.category = @"Facebook";
+                                          NSString *pictureUrl;
+                                          pictureUrl= @"%@ picture", newFriend.facebookUser;
+                                          [FBRequestConnection startWithGraphPath:pictureUrl completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+                                              NSLog(result);
+                                                newFriend.image = (NSData *)result;
+                                                if (!([newFriend.managedObjectContext save:&error])) {
+                                                    NSLog(@"Error while saving a new friend from Facebook: %@", error);
+                                                }
+                                          }];
+                                      } else {
+                                          newFriend = [arrayObjectsAlreadyStored objectAtIndex:0];
+                                      }
+                                      
+                                      
+                                  }
+                              } else {
+                                  // An error occurred, we need to handle the error
+                                  // See: https://developers.facebook.com/docs/ios/errors
+                                  if ([FBErrorUtility shouldNotifyUserForError:error]) {
+                                      [self showMessage:[FBErrorUtility userMessageForError:error] withTitle:@"While trying to retrieve your friends"];
+                                  } else {
+                                      NSInteger *errorCategory = [FBErrorUtility errorCategoryForError:error];
+                                      NSLog([NSString stringWithFormat:@"%d", errorCategory]);
+                                      NSLog([error userInfo]);
+                                  }
+                              }
+                          }];
+}
 // Show an alert message
 - (void)showMessage:(NSString *)text withTitle:(NSString *)title
 {

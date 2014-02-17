@@ -14,6 +14,8 @@
 }
 @property (nonatomic, copy) NSString *category;
 @property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSData *image;
+@property (nonatomic, copy) NSString *facebookUser;
 
 + (id)setCategoryAndName:(NSString*)category name:(NSString*)name;
 @end

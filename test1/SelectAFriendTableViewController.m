@@ -22,6 +22,7 @@
 @synthesize friendsSearchBar;
 @synthesize addressBookAlreadyLoaded;
 NSString *const messageToConnectAddressBook = @"Import from Phonebook";
+NSString *const messageToConnectFacebook = @"Import from Facebook";
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -84,6 +85,7 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
 //    aFriend = [friendsArray objectAtIndex:indexPath.row];
     // Configure the cell
     cell.textLabel.text = aFriend.name;
+    cell.imageView.image = [UIImage imageWithData:aFriend.image];
     [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     return cell;
 }
@@ -102,7 +104,7 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
         if ([scope isEqualToString:@"Phone"]) {
             scopePredicate = [NSPredicate predicateWithFormat:@"category contains[c] %@",@"AddressBook"];
         } else if ([scope isEqualToString:@"Facebook"]) {
-            scopePredicate = [NSPredicate predicateWithFormat:@"category contains[c] %@",@"Facebook"];
+            scopePredicate = [NSPredicate predicateWithFormat:@"facebookUser <> nil"];
         } else {
             NSLog(@"Filter scope %@ is unsupported", scope);
         }
@@ -175,6 +177,9 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
         JMFFakeContact *aFakeContact = [JMFFakeContact setCategoryAndName:@"AddressBook" name:messageToConnectAddressBook];
         [friendsArray addObject:aFakeContact];
     }
+    JMFFakeContact *fbFakeContact = [JMFFakeContact setCategoryAndName:@"Facebook" name:messageToConnectFacebook];
+    fbFakeContact.facebookUser = @"123";
+    [friendsArray addObject:fbFakeContact];
     [friendsArray addObjectsFromArray:array];
     self.filteredFriendsArray = [NSMutableArray arrayWithCapacity:[friendsArray count]];
 }
@@ -226,12 +231,36 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
         // change the retain/release count. Well done.
         ABRecordRef aPerson = (__bridge ABRecordRef)([people objectAtIndex:i]);
         
+        // Retrieve the facebook user name from an existing contact
+        NSString *facebookProfile = nil;
+        ABMultiValueRef profile = ABRecordCopyValue(aPerson,  kABPersonInstantMessageProperty);
+        if (ABMultiValueGetCount(profile) > 0)
+        {
+            // collect all emails in array
+            
+            for (CFIndex i = 0; i < ABMultiValueGetCount(profile); i++)
+            {
+                NSDictionary *socialItem = (__bridge NSDictionary*)ABMultiValueCopyValueAtIndex(profile, i);
+                NSString* SocialLabel =  [socialItem objectForKey:(NSString *)kABPersonInstantMessageServiceKey];
+                
+                if([SocialLabel isEqualToString:(NSString *)kABPersonInstantMessageServiceFacebook])
+                {
+                    facebookProfile = ([socialItem objectForKey:(NSString *)kABPersonInstantMessageUsernameKey]);
+                    NSLog(@"fbName %@",facebookProfile);
+                    
+                }
+                
+            }
+            CFRelease(profile);
+        }
+        
         // Is there an object already existing with this id
         NSFetchRequest *request = [[NSFetchRequest alloc] init]; //request that will be used to ensure there is not already an object with this id
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"iosABrecordId == %@", [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)]];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(iosABrecordId == %@) OR (facebookUser == %@ AND facebookUser <> nil)", [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)], facebookProfile];
         [request setEntity:entityDescription];
         [request setPredicate:predicate];
         NSArray *objectsWithThisId = [context executeFetchRequest:request error:&error];
+        
         
         // if no object already exists
         if ([objectsWithThisId count] == 0) {
@@ -239,6 +268,9 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
             aFriend.name = CFBridgingRelease(ABRecordCopyCompositeName(aPerson)); // Also correct. Good.
             aFriend.category = @"AddressBook";
             aFriend.iosABrecordId = [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)];
+            aFriend.facebookUser = Nil;
+            aFriend.image = (__bridge NSData*)ABPersonCopyImageData(aPerson);
+            aFriend.facebookUser = facebookProfile;
             
             if (![aFriend.managedObjectContext save:&error]) {
                 NSLog(@"Error when saving the object: %@", error);
@@ -287,6 +319,8 @@ NSString *const messageToConnectAddressBook = @"Import from Phonebook";
             // The user has previously denied access
             // Send an alert telling user to change privacy setting in settings app
         }
+    } else if (selectedValue.name == messageToConnectFacebook) {
+        [self retrieveContactsFromFacebbokIntoCoreData];
     } else {
         NSLog(@"UUID %@", selectedValue.iosABrecordId);
         NSLog(@"Value selected %@", selectedValue.name);

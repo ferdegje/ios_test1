@@ -11,12 +11,14 @@
 @implementation JMFFakeContact
 @synthesize category;
 @synthesize name;
+@synthesize image;
 
 + (id)setCategoryAndName:(NSString *)category name:(NSString *)name
 {
     JMFFakeContact *aFriend = [[self alloc] init];
     aFriend.category = category;
     aFriend.name = name;
+    aFriend.image = nil;
     return aFriend;
 }
 @end
