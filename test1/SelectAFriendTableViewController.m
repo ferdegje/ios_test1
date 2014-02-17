@@ -84,7 +84,7 @@ NSString *const messageToConnectFacebook = @"Import from Facebook";
     }
 //    aFriend = [friendsArray objectAtIndex:indexPath.row];
     // Configure the cell
-    cell.textLabel.text = aFriend.name;
+    cell.textLabel.text = [NSString stringWithFormat:@"%@, (%@)", aFriend.name, aFriend.facebookUser];
     cell.imageView.image = [UIImage imageWithData:aFriend.image];
     [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     return cell;
@@ -254,6 +254,23 @@ NSString *const messageToConnectFacebook = @"Import from Facebook";
             CFRelease(profile);
         }
         
+        // in some cases, iOS does not store the Facebook info of a profile into kABPersonInstantMessageServiceKey but in kABPersonSocialProfileProperty instead
+        // code inspired from http://stackoverflow.com/questions/14507638/unable-to-get-facebook-profiles-from-abaddressbook-in-ios6
+        if (facebookProfile == nil) {
+            NSArray *linkedPeople = (__bridge_transfer NSArray *)ABPersonCopyArrayOfAllLinkedPeople (aPerson);
+            for (int x = 0; x < [linkedPeople count]; x++)
+            {
+                ABMultiValueRef socialApps = ABRecordCopyValue((__bridge ABRecordRef)[linkedPeople objectAtIndex:x], kABPersonSocialProfileProperty);
+                CFIndex thisSocialAppCount = ABMultiValueGetCount(socialApps);
+                for (int i = 0; i < thisSocialAppCount; i++)
+                {
+                    NSDictionary *socialItem = (__bridge_transfer NSDictionary*)ABMultiValueCopyValueAtIndex(socialApps, i);
+                    facebookProfile = [socialItem valueForKey:@"username"];
+                }
+                if (socialApps != Nil)
+                    CFRelease(socialApps);
+            }
+        }
         // Is there an object already existing with this id
         NSFetchRequest *request = [[NSFetchRequest alloc] init]; //request that will be used to ensure there is not already an object with this id
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(iosABrecordId == %@) OR (facebookUser == %@ AND facebookUser <> nil)", [NSNumber numberWithInteger:ABRecordGetRecordID(aPerson)], facebookProfile];
