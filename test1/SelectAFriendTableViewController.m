@@ -44,9 +44,10 @@ NSString *const messageToConnectFacebook = @"Import from Facebook";
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 
     [self updateDataSource];
-    
-    // Reload the table
+    JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receivedNotificationOfNewContactsAdded:) name:@"com.razeware.test1.newcontactsadded" object:nil];
     [self.tableView reloadData];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -84,7 +85,7 @@ NSString *const messageToConnectFacebook = @"Import from Facebook";
     }
 //    aFriend = [friendsArray objectAtIndex:indexPath.row];
     // Configure the cell
-    cell.textLabel.text = [NSString stringWithFormat:@"%@, (%@)", aFriend.name, aFriend.facebookUser];
+    cell.textLabel.text = aFriend.name;
     cell.imageView.image = [UIImage imageWithData:aFriend.image];
     [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
     return cell;
@@ -135,6 +136,13 @@ NSString *const messageToConnectFacebook = @"Import from Facebook";
 }
 
 #pragma mark - Utilities
+// Add new method
+- (void)receivedNotificationOfNewContactsAdded:(NSNotification *)notif {
+    [self updateDataSource];
+    // Reload the table
+    [self.tableView reloadData];
+}
+
 - (void)updateDataSource
 {
     JMFAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
@@ -177,9 +185,12 @@ NSString *const messageToConnectFacebook = @"Import from Facebook";
         JMFFakeContact *aFakeContact = [JMFFakeContact setCategoryAndName:@"AddressBook" name:messageToConnectAddressBook];
         [friendsArray addObject:aFakeContact];
     }
-    JMFFakeContact *fbFakeContact = [JMFFakeContact setCategoryAndName:@"Facebook" name:messageToConnectFacebook];
-    fbFakeContact.facebookUser = @"123";
-    [friendsArray addObject:fbFakeContact];
+    if (!(appDelegate.facebookLoggedIn)) {
+        JMFFakeContact *fbFakeContact = [JMFFakeContact setCategoryAndName:@"Facebook" name:messageToConnectFacebook];
+        fbFakeContact.facebookUser = @"123";
+        [friendsArray addObject:fbFakeContact];
+    }
+    
     [friendsArray addObjectsFromArray:array];
     self.filteredFriendsArray = [NSMutableArray arrayWithCapacity:[friendsArray count]];
 }

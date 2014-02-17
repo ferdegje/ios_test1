@@ -10,6 +10,7 @@
 #import "FacebookSDK/FBSession.h"
 #import "FacebookSDK/FBAppCall.h"
 #import "Friends.h"
+#import "SelectAFriendTableViewController.h"
 
 // Ensure that any observations about NSManagedObjectContexts being saved
 // are merged with the main thread's context ON THE MAIN THREAD. The
@@ -41,6 +42,7 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [self setFacebookLoggedIn:NO];
     // Whenever a person opens the app, check for a cached session
     if (FBSession.activeSession.state == FBSessionStateCreatedTokenLoaded) {
         
@@ -298,12 +300,6 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
                                   // Sucess! Include your code to handle the results here
                                   
                                   NSArray *rdata = [result objectForKey:@"data"];
-                                  NSLog(@"user events: %@", rdata);
-                                  if ([rdata count] >= limit) {
-                                      int newOffset;
-                                      newOffset = offset +limit;
-                                      [self retrieveFacebookFriendsFromOffset:newOffset];
-                                  }
                                   for (NSDictionary *aFbFriend in rdata) {
                                       // Make sure that this user isn't already in the Friends coredata table
                                       NSPredicate *predicate = [NSPredicate predicateWithFormat:@"facebookUser == %@", [aFbFriend objectForKey:@"username"]];
@@ -332,6 +328,13 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
                                       
                                       
                                   }
+                                  if ([rdata count] >= limit) {
+                                      int newOffset;
+                                      newOffset = offset +limit;
+                                      [self retrieveFacebookFriendsFromOffset:newOffset];
+                                  } else {
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:@"com.razeware.test1.newcontactsadded" object:self];
+                                  }
                               } else {
                                   // An error occurred, we need to handle the error
                                   // See: https://developers.facebook.com/docs/ios/errors
@@ -355,10 +358,6 @@ static dispatch_queue_t contextMergingDispatchQueue = nil;
                       otherButtonTitles:nil] show];
 }
 
-// During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
-// After authentication, your app will be called back with the session information.
-// During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
-// After authentication, your app will be called back with the session information.
 // During the Facebook login flow, your app passes control to the Facebook iOS app or Facebook in a mobile browser.
 // After authentication, your app will be called back with the session information.
 - (BOOL)application:(UIApplication *)application

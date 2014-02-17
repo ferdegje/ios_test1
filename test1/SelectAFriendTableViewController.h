@@ -14,4 +14,5 @@
 @property (strong,nonatomic) NSMutableArray *filteredFriendsArray;
 @property IBOutlet UISearchBar *friendsSearchBar;
 @property (nonatomic) BOOL *addressBookAlreadyLoaded;
+- (void)updateDataSource;
 @end

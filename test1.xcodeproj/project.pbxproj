@@ -29,6 +29,7 @@
 		CF17D67D189C675600B59E11 /* JMFViewControllerChooseFriends.m in Sources */ = {isa = PBXBuildFile; fileRef = CF17D67C189C675600B59E11 /* JMFViewControllerChooseFriends.m */; };
 		CF4CA56F18A544A70091C7BD /* NSDictionary+googleAnalysis.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4CA56E18A544A70091C7BD /* NSDictionary+googleAnalysis.m */; };
 		CF4CA57218A5463E0091C7BD /* ImageWithText.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4CA57118A5463E0091C7BD /* ImageWithText.m */; };
+		CFA8E01318B2CBD700B7BFCC /* ContactTableCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CFA8E01218B2CBD700B7BFCC /* ContactTableCell.xib */; };
 		CFEFA10718AAC6DF00B03225 /* SelectAFriendTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */; };
 		CFFB4C4918AC06E80030D693 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFFB4C4718AC06E80030D693 /* AddressBook.framework */; };
 		CFFB4C4A18AC06E80030D693 /* AddressBookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFFB4C4818AC06E80030D693 /* AddressBookUI.framework */; };
@@ -76,6 +77,7 @@
 		CF4CA56E18A544A70091C7BD /* NSDictionary+googleAnalysis.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+googleAnalysis.m"; sourceTree = "<group>"; };
 		CF4CA57018A5463E0091C7BD /* ImageWithText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageWithText.h; sourceTree = "<group>"; };
 		CF4CA57118A5463E0091C7BD /* ImageWithText.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageWithText.m; sourceTree = "<group>"; };
+		CFA8E01218B2CBD700B7BFCC /* ContactTableCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactTableCell.xib; sourceTree = "<group>"; };
 		CFEFA10518AAC6DF00B03225 /* SelectAFriendTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectAFriendTableViewController.h; sourceTree = "<group>"; };
 		CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectAFriendTableViewController.m; sourceTree = "<group>"; };
 		CFFB4C4718AC06E80030D693 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
@@ -170,6 +172,7 @@
 				CFEFA10618AAC6DF00B03225 /* SelectAFriendTableViewController.m */,
 				CFFB4C5118AC3E610030D693 /* JMFFakeContact.h */,
 				CFFB4C5218AC3E610030D693 /* JMFFakeContact.m */,
+				CFA8E01218B2CBD700B7BFCC /* ContactTableCell.xib */,
 			);
 			path = test1;
 			sourceTree = "<group>";
@@ -281,6 +284,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF17D66E189C5AB300B59E11 /* iphone.storyboard in Resources */,
+				CFA8E01318B2CBD700B7BFCC /* ContactTableCell.xib in Resources */,
 				CF17D636189C576200B59E11 /* InfoPlist.strings in Resources */,
 				CF17D641189C576200B59E11 /* Images.xcassets in Resources */,
 			);
